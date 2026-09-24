@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Práctica AJAX</title>
+
+<style>
+  body { font-family: Arial, sans-serif;
+         max-width: 800px; margin: 30px auto; }
+  button { background: #2456d6; color: white;
+           border: 0; padding: 10px 18px;
+           border-radius: 6px; cursor: pointer; }
+  button:disabled { opacity: 0.5; }
+  table { width: 100%; border-collapse: collapse;
+          margin-top: 16px; }
+  th { background: #1b2a49; color: white; }
+  th, td { border: 1px solid #ccc; padding: 8px;
+           text-align: left; }
+  tr:nth-child(even) { background: #f2f5fb; }
+</style>
+
+</head>
+<body>
+  <h1>Usuarios</h1>
+  <button id="btn">Cargar usuarios</button>
+  <p id="mensaje"></p>
+  <table>
+    <thead>
+      <tr><th>ID</th><th>Nombre</th><th>Correo</th><th>Ciudad</th></tr>
+    </thead>
+    <tbody id="cuerpo"></tbody>
+  </table>
+
+  <p><a href="index.html">Volver al inicio</a></p>
+<script>
+
+  const API = "https://jsonplaceholder.typicode.com/users";
+
+  async function cargar() {
+    const boton = document.getElementById("btn");
+    const mensaje = document.getElementById("mensaje");
+    const cuerpo = document.getElementById("cuerpo");
+    mensaje.textContent = "Cargando...";
+    boton.disabled = true;
+
+    try {
+      const r = await fetch(API); //ajax pide los datos al servidor
+      if (!r.ok) { throw new Error("Error " + r.status); }
+      const usuarios = await r.json(); //recibe la lista de usuarios
+      cuerpo.innerHTML = "";
+      usuarios.forEach(function (u) {
+        cuerpo.innerHTML += "<tr><td>" + u.id + "</td>" +
+          "<td>" + u.name + "</td>" +
+          "<td>" + u.email + "</td>" +
+          "<td>" + u.address.city + "</td></tr>";
+      });
+
+      mensaje.textContent = usuarios.length + " usuarios cargados";
+
+    } catch (error) {
+      mensaje.textContent = "Error: " + error.message;
+
+    } finally {
+      boton.disabled = false;
+    }//finally
+
+  }//cargar
+
+  document.getElementById("btn").addEventListener("click", cargar);
+
+</script>
+</body>
+</html>

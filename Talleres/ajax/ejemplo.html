@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Ejemplo AJAX</title>
+</head>
+
+<body>
+  <h1>Ejemplo: perro aleatorio</h1>
+  <button id="btnPerro">Traer otro perro</button>
+  <p id="estado"></p>
+  <img id="foto" width="300" alt="Perro">
+  <p><a href="index.html">Volver al inicio</a></p>
+
+<script>
+  async function traerPerro() {
+    const estado = document.getElementById("estado");
+    const foto = document.getElementById("foto");
+    estado.textContent = "Cargando...";
+   
+    try {
+      const url = "https://dog.ceo/api/breeds/image/random";
+      const respuesta = await fetch(url);
+      const datos = await respuesta.json();
+      foto.src = datos.message;
+      estado.textContent = "";
+      
+    } catch (error) {
+      estado.textContent = "No se pudo cargar";
+    }//Catch
+
+  }//traerPerro
+
+  document.getElementById("btnPerro")
+    .addEventListener("click", traerPerro);
+
+  traerPerro();   // pide un perro al abrir
+</script>
+
+</body>
+</html>

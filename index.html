@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Talleres - Bibliotecas JavaScript</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f8;
+            margin: 0;
+            padding: 40px;
+        }
+
+        .contenedor {
+            max-width: 800px;
+            margin: auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: #1f2937;
+            margin-bottom: 10px;
+        }
+
+        .descripcion {
+            text-align: center;
+            color: #6b7280;
+            margin-bottom: 30px;
+        }
+
+        .talleres {
+            display: grid;
+            gap: 15px;
+        }
+
+        .taller {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-decoration: none;
+            color: #1f2937;
+            border: 1px solid #e5e7eb;
+            transition: 0.2s;
+        }
+
+        .taller:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .taller h2 {
+            margin: 0 0 8px;
+            color: #2563eb;
+            font-size: 20px;
+        }
+
+        .taller p {
+            margin: 0;
+            color: #6b7280;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="contenedor">
+
+        <h1>Bibliotecas JavaScript</h1>
+
+        <p class="descripcion">
+            Índice de talleres y prácticas realizadas durante el curso.
+        </p>
+
+        <div class="talleres">
+
+            <a class="taller" href="./Talleres/ajax/index_ajax.html">
+                <h2>Taller 1 - AJAX</h2>
+                <p>Práctica sobre el uso de AJAX en JavaScript.</p>
+            </a>
+
+            <a class="taller" href="#">
+                <h2>Taller 2</h2>
+                <p>Próximamente...</p>
+            </a>
+
+            <a class="taller" href="#">
+                <h2>Taller 3</h2>
+                <p>Próximamente...</p>
+            </a>
+
+        </div>
+
+    </div>
+
+</body>
+</html>
