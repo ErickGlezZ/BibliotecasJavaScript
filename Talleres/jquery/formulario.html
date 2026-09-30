@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Registro de pacientes con jQuery</title>
+    <link rel="stylesheet" href="./estilos.css">
+
+    <!-- Librería jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+</head>
+
+<body>
+
+    <h1>Registro de paciente</h1>
+
+    <!-- Formulario -->
+    <form id="formPaciente">
+
+        <label for="nombre">Nombre:</label>
+        <br>
+
+        <input type="text" id="nombre">
+
+        <br><br>
+
+
+        <label for="correo">Correo:</label>
+        <br>
+
+        <input type="email" id="correo">
+
+        <br><br>
+
+
+        <label for="edad">Edad:</label>
+        <br>
+
+        <input type="number" id="edad">
+
+        <br><br>
+
+
+        <button type="submit">
+            Registrar
+        </button>
+
+    </form>
+
+
+    <!-- Mensaje de validación -->
+    <p id="mensaje"></p>
+
+
+    <!-- Lista de pacientes -->
+    <h2>Pacientes registrados</h2>
+
+    <ul id="listaPacientes">
+
+    </ul>
+
+
+    <script>
+
+        // Detectamos cuando el usuario envía el formulario
+        $("#formPaciente").on("submit", function(event) {
+
+            // Evitamos que el formulario recargue la página
+            event.preventDefault();
+
+
+            // Obtenemos los valores de los campos
+            let nombre = $("#nombre").val();
+
+            let correo = $("#correo").val();
+
+            let edad = $("#edad").val();
+
+
+            // Creamos un arreglo para guardar los errores
+            let errores = [];
+
+
+            // Validamos el nombre
+            if (nombre === "") {
+
+                errores.push("El nombre es obligatorio.");
+
+            }
+
+
+            // Validamos el correo
+            if (correo === "") {
+
+                errores.push("El correo es obligatorio.");
+
+            }
+
+
+            // Validamos la edad
+            if (edad === "") {
+
+                errores.push("La edad es obligatoria.");
+
+            }
+
+
+            // Verificamos que la edad sea mayor o igual a 18
+            if (edad !== "" && edad < 18) {
+
+                errores.push(
+                    "El paciente debe tener al menos 18 años."
+                );
+
+            }
+
+
+            // Comprobamos si existen errores
+            if (errores.length > 0) {
+
+
+                // Limpiamos los mensajes anteriores
+                $("#mensaje").html("");
+
+
+                // Recorremos el arreglo de errores
+                for (let i = 0; i < errores.length; i++) {
+
+                    // Agregamos cada error al elemento mensaje
+                    $("#mensaje").append(
+                        "<p>" + errores[i] + "</p>"
+                    );
+
+                }
+
+            }
+
+
+            // Si no existen errores
+            else {
+
+
+                // Mostramos mensaje de registro exitoso
+                $("#mensaje").html(
+                    "<strong>Paciente registrado correctamente.</strong>"
+                );
+
+
+                // Agregamos el paciente a la lista
+                $("#listaPacientes").append(
+
+                    "<li>" +
+
+                    "<strong>Nombre:</strong> " +
+                    nombre +
+
+                    " | " +
+
+                    "<strong>Correo:</strong> " +
+                    correo +
+
+                    " | " +
+
+                    "<strong>Edad:</strong> " +
+                    edad +
+
+                    "</li>"
+
+                );
+
+
+                // Limpiamos el formulario
+                $("#formPaciente")[0].reset();
+
+            }
+
+        });
+
+    </script>
+
+</body>
+
+</html>

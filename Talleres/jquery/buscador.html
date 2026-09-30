@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buscador de pacientes</title>
+    <link rel="stylesheet" href="./estilos.css">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+</head>
+
+<body>
+
+    <h1>Pacientes</h1>
+
+    <input type="text" id="buscador" placeholder="Buscar paciente...">
+
+    <br><br>
+
+    <table border="1" id="tablaPacientes">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Edad</th>
+                <th>Área</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            <tr>
+                <td>1</td>
+                <td>Juan Pérez</td>
+                <td>25</td>
+                <td>Cardiología</td>
+            </tr>
+
+            <tr>
+                <td>2</td>
+                <td>María López</td>
+                <td>34</td>
+                <td>Pediatría</td>
+            </tr>
+
+            <tr>
+                <td>3</td>
+                <td>Carlos Sánchez</td>
+                <td>42</td>
+                <td>Neurología</td>
+            </tr>
+
+            <tr>
+                <td>4</td>
+                <td>Ana Rodríguez</td>
+                <td>29</td>
+                <td>Cardiología</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <script>
+
+        $("#buscador").on("keyup", function() {
+
+            let textoBuscado = $(this).val().toLowerCase();
+
+            $("#tablaPacientes tbody tr").each(function() {
+
+                let informacionPaciente = $(this).text().toLowerCase();
+
+                if (informacionPaciente.includes(textoBuscado)) {
+                    $(this).show();
+                } else {
+                    $(this).hide();
+                }
+
+            });
+
+        });
+
+    </script>
+
+</body>
+</html>
