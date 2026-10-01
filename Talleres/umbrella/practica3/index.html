@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Agenda de contactos · Umbrella JS</title>
+  <link rel="stylesheet" href="css/estilos.css">
+  <!-- type="module" permite usar import/export entre archivos -->
+  <script type="module" src="js/main.js"></script>
+</head>
+<body>
+  <header class="encabezado">
+    <h1>Agenda de contactos</h1>
+    <button id="btn-restablecer" class="btn btn-texto" type="button">Restablecer datos</button>
+  </header>
+
+  <main class="layout">
+    <!-- ===== FORMULARIO ===== -->
+    <section class="panel" aria-labelledby="titulo-form">
+      <h2 id="titulo-form">Nuevo contacto</h2>
+
+      <form id="form-contacto" novalidate>
+        <input type="hidden" name="id">
+
+        <div class="campo">
+          <label for="nombre">Nombre *</label>
+          <input id="nombre" name="nombre" type="text" autocomplete="name">
+          <small class="error" id="error-nombre"></small>
+        </div>
+
+        <div class="campo">
+          <label for="email">Correo *</label>
+          <input id="email" name="email" type="email" autocomplete="email">
+          <small class="error" id="error-email"></small>
+        </div>
+
+        <div class="campo">
+          <label for="telefono">Teléfono * (10 dígitos)</label>
+          <input id="telefono" name="telefono" type="tel" inputmode="numeric" autocomplete="tel">
+          <small class="error" id="error-telefono"></small>
+        </div>
+
+        <div class="campo">
+          <label for="empresa">Empresa</label>
+          <input id="empresa" name="empresa" type="text" autocomplete="organization">
+        </div>
+
+        <div class="acciones-form">
+          <button id="btn-guardar" class="btn btn-primario" type="submit">Agregar contacto</button>
+          <button id="btn-cancelar" class="btn btn-secundario oculto" type="button">Cancelar</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- ===== LISTA ===== -->
+    <section class="panel" aria-labelledby="titulo-lista">
+      <h2 id="titulo-lista">Contactos</h2>
+
+      <div class="herramientas">
+        <input id="buscador" type="search" placeholder="Buscar por nombre, correo o empresa" aria-label="Buscar contactos">
+        <select id="orden" aria-label="Ordenar">
+          <option value="nombre-asc">Nombre A-Z</option>
+          <option value="nombre-desc">Nombre Z-A</option>
+          <option value="recientes">Más recientes</option>
+        </select>
+        <label class="check">
+          <input id="solo-favoritos" type="checkbox"> Solo favoritos
+        </label>
+      </div>
+
+      <p id="resumen" class="resumen"></p>
+
+      <p id="estado-cargando" class="estado">Cargando contactos…</p>
+      <p id="estado-error" class="estado estado-error oculto"></p>
+      <p id="estado-vacio" class="estado oculto">No hay contactos que coincidan con la búsqueda.</p>
+
+      <ul id="lista-contactos" class="lista"></ul>
+    </section>
+  </main>
+
+  <!-- Notificaciones; aria-live hace que los lectores de pantalla las anuncien -->
+  <div id="toasts" class="toasts" aria-live="polite"></div>
+</body>
+</html>

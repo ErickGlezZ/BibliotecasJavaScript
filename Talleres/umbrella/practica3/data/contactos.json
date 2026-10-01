@@ -1,0 +1,7 @@
+[
+  { "id": "c1", "nombre": "Ana López",      "email": "ana.lopez@correo.com",    "telefono": "4941234567", "empresa": "Tec Jerez",        "favorito": true,  "creado": 1 },
+  { "id": "c2", "nombre": "Bruno Martínez", "email": "bruno.mtz@correo.com",    "telefono": "4929876543", "empresa": "Soluciones BM",    "favorito": false, "creado": 2 },
+  { "id": "c3", "nombre": "Carla Ruiz",     "email": "carla.ruiz@correo.com",   "telefono": "4945551234", "empresa": "",                 "favorito": false, "creado": 3 },
+  { "id": "c4", "nombre": "Diego Herrera",  "email": "diego.h@correo.com",      "telefono": "4921112233", "empresa": "Redes del Centro", "favorito": true,  "creado": 4 },
+  { "id": "c5", "nombre": "Elena Castro",   "email": "elena.castro@correo.com", "telefono": "4947778899", "empresa": "Tec Jerez",        "favorito": false, "creado": 5 }
+]

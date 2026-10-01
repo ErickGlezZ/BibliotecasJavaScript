@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Práctica intermedia Umbrella JS - Mini tienda</title>
+  <link rel="stylesheet" href="css/estilos2.css">
+</head>
+<body>
+  <header class="barra">
+    <h1>Mini tienda</h1>
+    <span id="insignia-carrito">Carrito: 0</span>
+  </header>
+
+  <main class="layout">
+    <!-- ====== CATÁLOGO ====== -->
+    <section class="catalogo">
+      <div class="controles">
+        <input type="text" id="buscador" placeholder="Buscar producto...">
+
+        <!-- data-categoria se lee con .data('categoria') -->
+        <div id="filtros">
+          <button class="filtro activo" data-categoria="todos">Todos</button>
+          <button class="filtro" data-categoria="bebidas">Bebidas</button>
+          <button class="filtro" data-categoria="snacks">Snacks</button>
+          <button class="filtro" data-categoria="papeleria">Papelería</button>
+        </div>
+      </div>
+
+      <p id="sin-resultados" class="oculto">No hay productos que coincidan.</p>
+
+      <!-- Las tarjetas se generan desde app.js -->
+      <div id="productos" class="grid"></div>
+    </section>
+
+    <!-- ====== CARRITO ====== -->
+    <aside class="carrito">
+      <h2>Carrito</h2>
+      <p id="carrito-vacio">Tu carrito está vacío.</p>
+      <ul id="lista-carrito"></ul>
+
+      <form id="form-cupon">
+        <input type="text" id="cupon" placeholder="Cupón (prueba UMBRELLA10)">
+        <button type="submit">Aplicar</button>
+      </form>
+      <p id="mensaje-cupon"></p>
+
+      <div class="totales">
+        <p>Subtotal: <span id="subtotal">$0.00</span></p>
+        <p>Descuento: <span id="descuento">$0.00</span></p>
+        <p class="total">Total: <span id="total">$0.00</span></p>
+      </div>
+
+      <button id="btn-vaciar" class="secundario">Vaciar carrito</button>
+    </aside>
+  </main>
+
+  <script src="umbrella.min.js"></script>
+  <script src="app2.js"></script>
+</body>
+</html>

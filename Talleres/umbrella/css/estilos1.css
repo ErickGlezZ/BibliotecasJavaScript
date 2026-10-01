@@ -1,0 +1,95 @@
+body {
+  font-family: Arial, sans-serif;
+  background: #eef2f5;
+  margin: 0;
+  padding: 40px 16px;
+}
+
+.contenedor {
+  max-width: 420px;
+  margin: 0 auto;
+  background: #ffffff;
+  padding: 24px;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+  margin-top: 0;
+  color: #1e3a4c;
+}
+
+.formulario {
+  display: flex;
+  gap: 8px;
+}
+
+input {
+  flex: 1;
+  padding: 8px;
+  border: 1px solid #b8c7d1;
+  border-radius: 6px;
+  font-size: 15px;
+}
+
+button {
+  padding: 8px 14px;
+  border: none;
+  border-radius: 6px;
+  background: #1e3a4c;
+  color: white;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #2d5670;
+}
+
+#lista li {
+  padding: 6px 0;
+  cursor: pointer;
+}
+
+#lista li:hover {
+  text-decoration: line-through;
+  color: #888;
+}
+
+/* Clase que agregamos con Umbrella a las tareas nuevas */
+.nueva {
+  color: #1f7a3f;
+  font-weight: bold;
+}
+
+#contador {
+  color: #555;
+}
+
+.ayuda {
+  font-size: 13px;
+  color: #999;
+}
+
+nav {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin-top: 25px;
+}
+
+nav a {
+    text-decoration: none;
+    color: white;
+    background-color: #1e3a4c;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 15px;
+    transition: 0.2s;
+}
+
+nav a:hover {
+    background-color: #1e3a4c;
+    transform: translateY(-2px);
+}

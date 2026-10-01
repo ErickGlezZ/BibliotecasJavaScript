@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Práctica Umbrella JS - Lista de tareas</title>
+  <link rel="stylesheet" href="./css/estilos1.css">
+</head>
+<body>
+  <main class="contenedor">
+    <h1 id="titulo">Mi lista de tareas</h1>
+
+    <div class="formulario">
+      <input type="text" id="nueva-tarea" placeholder="Escribe una tarea">
+      <button id="btn-agregar">Agregar</button>
+    </div>
+
+    <ul id="lista">
+      <li>Aprender Umbrella JS</li>
+      <li>Terminar la práctica</li>
+    </ul>
+
+    <p id="contador"></p>
+    <p class="ayuda">Da clic en una tarea para eliminarla.</p>
+  </main>
+
+  <!-- 1) Primero se carga la librería (copia local, funciona sin internet) -->
+  <script src="umbrella.min.js"></script>
+  <!-- Alternativa por CDN:
+  <script src="https://cdn.jsdelivr.net/npm/umbrellajs@3.3.3/umbrella.min.js"></script>
+  -->
+
+  <!-- 2) Después nuestro código, que usa la función u() -->
+  <script src="app1.js"></script>
+</body>
+</html>
