@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ejemplo 1 (básico): medidor de contraseña con Alpine.js</title>
+
+<!-- Carga Alpine.js desde CDN. "defer" es obligatorio para que arranque al terminar de cargar el HTML -->
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.9/dist/cdn.min.js"></script>
+
+<!--
+=====================================================================
+ ¿QUÉ HACE ALPINE EN ESTE EJEMPLO?
+ Sin escribir NINGÚN document.getElementById ni addEventListener:
+   1. Guarda lo que escribes en una variable ("clave")          -> x-model
+   2. Recalcula solo las reglas, los puntos y el nivel          -> getters (get ...)
+   3. Pinta una barra cuyo ancho y color cambian en vivo        -> :style
+   4. Marca cada regla con ✔ o ✘ en tiempo real                 -> x-for + :class
+   5. Alterna mostrar/ocultar la contraseña                     -> :type y @click
+   6. Habilita el botón solo cuando la clave es fuerte          -> :disabled
+ Tú solo cambias datos; Alpine actualiza la pantalla.
+=====================================================================
+-->
+
+<style>
+  body{font-family:system-ui,sans-serif;max-width:420px;margin:40px auto;padding:0 16px;color:#1f2430}
+  .campo{display:flex;gap:6px}
+  input{flex:1;padding:10px;font-size:1rem;border:1px solid #bbb;border-radius:8px}
+  button{padding:10px 14px;border:0;border-radius:8px;background:#0e7c86;color:#fff;font-weight:600;cursor:pointer}
+  button:disabled{background:#aaa;cursor:not-allowed}
+  .barra{height:10px;background:#e5e7eb;border-radius:99px;margin:14px 0 6px;overflow:hidden}
+  .barra div{height:100%;transition:width .3s,background .3s}   /* la animación es CSS; Alpine solo cambia el valor */
+  ul{list-style:none;padding:0}
+  li{padding:3px 0;color:#b42318}
+  li.ok{color:#2b8a3e}
+</style>
+</head>
+<body>
+
+<h1>Crea tu contraseña</h1>
+
+<!--
+  x-data="contrasena()"  ->  Crea el COMPONENTE de Alpine.
+  Todo lo que esté dentro de este <div> puede leer y modificar las variables
+  definidas en la función contrasena() (ver más abajo en <script>).
+-->
+<div x-data="contrasena()">
+
+  <div class="campo">
+    <!--
+      x-model="clave"  ->  Enlace BIDIRECCIONAL: lo que escribes se guarda en "clave",
+                           y si "clave" cambiara por código, el input se actualizaría.
+      :type            ->  Atributo dinámico: "text" si ver=true, "password" si ver=false.
+    -->
+    <input x-model="clave" :type="ver ? 'text' : 'password'" placeholder="Escribe tu contraseña">
+
+    <!-- @click -> escucha el clic y ejecuta JavaScript. "!ver" invierte true/false. -->
+    <button type="button" @click="ver = !ver" x-text="ver ? 'Ocultar' : 'Ver'"></button>
+  </div>
+
+  <!--
+    :style  ->  Estilos dinámicos. El ancho depende de "puntos" y el color de "color".
+    Cada vez que "clave" cambia, Alpine recalcula puntos y color, y repinta la barra.
+  -->
+  <div class="barra">
+    <div :style="{ width: (puntos / 4 * 100) + '%', background: color }"></div>
+  </div>
+
+  <!-- x-text -> inserta el valor de una variable como texto dentro del elemento -->
+  <p>Nivel: <strong x-text="nivel" :style="{ color: color }"></strong></p>
+
+  <ul>
+    <!--
+      x-for  ->  Repite el <li> una vez por cada regla del arreglo "reglas".
+                 (Siempre va dentro de un <template>.)
+      :class ->  Agrega la clase "ok" solo si la regla se cumple.
+    -->
+    <template x-for="regla in reglas" :key="regla.texto">
+      <li :class="{ ok: regla.cumple }">
+        <span x-text="regla.cumple ? '✔' : '✘'"></span>
+        <span x-text="regla.texto"></span>
+      </li>
+    </template>
+  </ul>
+
+  <!-- :disabled -> el botón queda bloqueado mientras la condición sea verdadera -->
+  <button type="button" :disabled="puntos < 4" @click="alert('¡Contraseña guardada!')">
+    Guardar contraseña
+  </button>
+
+</div>
+
+<script>
+  // Función que devuelve el "estado" y la lógica del componente.
+  function contrasena() {
+    return {
+      // ---------- ESTADO (variables reactivas) ----------
+      clave: '',      // lo que escribe el usuario
+      ver: false,     // ¿mostrar la contraseña en texto plano?
+
+      // ---------- PROPIEDADES CALCULADAS ----------
+      // Un "get" se vuelve a calcular SOLO cuando cambian las variables que usa (aquí, "clave").
+      get reglas() {
+        return [
+          { texto: 'Al menos 8 caracteres',  cumple: this.clave.length >= 8 },
+          { texto: 'Una letra mayúscula',    cumple: /[A-Z]/.test(this.clave) },
+          { texto: 'Un número',              cumple: /\d/.test(this.clave) },
+          { texto: 'Un símbolo (! @ # $ %)', cumple: /[^A-Za-z0-9]/.test(this.clave) }
+        ]
+      },
+      // Cuántas reglas se cumplen (0 a 4)
+      get puntos() { return this.reglas.filter(r => r.cumple).length },
+      // El número de puntos sirve como índice para elegir texto y color
+      get nivel()  { return ['Muy débil', 'Débil', 'Media', 'Buena', 'Fuerte'][this.puntos] },
+      get color()  { return ['#b42318', '#e8590c', '#f59f00', '#74b816', '#2b8a3e'][this.puntos] }
+    }
+  }
+</script>
+</body>
+</html>

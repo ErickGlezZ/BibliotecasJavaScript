@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ejemplo 3 (Avanzado):Cotizador con deshacer/rehacer - Alpine.js</title>
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.9/dist/cdn.min.js"></script>
+
+<!--
+=====================================================================
+ ALPINE AQUÍ: un cotizador con historial DESHACER/REHACER
+   1. Tabla editable en línea                                       -> x-model
+   2. Filas dinámicas                                               -> x-for
+   3. Totales que se recalculan solos                               -> get
+   4. Historial DESHACER/REHACER (pila de "fotos" JSON)             -> ini() / fin()
+   5. Atajos Ctrl+Z / Ctrl+Y                                        -> @keydown.window
+   6. Autoguardado                                                  -> $watch
+=====================================================================
+-->
+
+<style>
+  body{font:15px system-ui,sans-serif;max-width:760px;margin:30px auto;padding:0 14px;background:#f4f5f7;color:#1f2430}
+  .c{background:#fff;border:1px solid #dde1e6;border-radius:12px;padding:16px}
+  table{width:100%;border-collapse:collapse}
+  th,td{padding:5px;text-align:left}
+  input{padding:7px;border:1px solid #ccd;border-radius:6px;width:100%;font-size:.95rem}
+  button{padding:8px 12px;border:0;border-radius:8px;background:#0e7c86;color:#fff;font-weight:600;cursor:pointer}
+  button:disabled{opacity:.35;cursor:not-allowed}
+  .g{background:#9aa3b2}
+  .x{background:none;color:#b42318}
+  .t{display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap}
+  .t span{margin-left:auto;color:#667085;font-size:.85rem}
+  .tot{margin:14px 0 0 auto;width:280px}
+  .tot div{display:flex;justify-content:space-between;align-items:center;padding:3px 0}
+  .tot input{width:64px}
+  .tot .f{font-size:1.2rem;font-weight:700;border-top:2px solid #0e7c86;color:#0e7c86}
+</style>
+</head>
+<body x-data="cotizador"
+      @keydown.ctrl.z.window.prevent="deshacer()"
+      @keydown.meta.z.window.prevent="deshacer()"
+      @keydown.ctrl.y.window.prevent="rehacer()">
+
+<h2>Cotizador</h2>
+
+<div class="c">
+
+  <!-- ===== BARRA DE ACCIONES ===== -->
+  <div class="t">
+    <button @click="agregar()">+ Concepto</button>
+    <button class="g" @click="deshacer()" :disabled="!pasado.length">↶ Deshacer (<span x-text="pasado.length"></span>)</button>
+    <button class="g" @click="rehacer()" :disabled="!futuro.length">↷ Rehacer</button>
+    <span x-show="hora" x-text="'Autoguardado ' + hora"></span>
+  </div>
+
+  <!-- ===== TABLA DE CONCEPTOS ===== -->
+  <table x-ref="tabla">
+    <tr><th>Concepto</th><th width="80">Cant.</th><th width="110">Precio</th><th width="110">Subtotal</th><th width="30"></th></tr>
+
+    <!-- x-for dibuja una fila por concepto; x-model edita directamente el dato (edición en línea) -->
+    <template x-for="f in d.filas" :key="f.id">
+      <tr>
+        <td><input x-model="f.txt" @focus="ini()" @change="fin()" placeholder="Describe el concepto"></td>
+        <td><input type="number" min="0" x-model.number="f.cant" @focus="ini()" @change="fin()"></td>
+        <td><input type="number" min="0" x-model.number="f.precio" @focus="ini()" @change="fin()"></td>
+        <td x-text="m(f.cant * f.precio)"></td>
+        <td><button class="x" @click="quitar(f.id)">✕</button></td>
+      </tr>
+    </template>
+  </table>
+  <p x-show="!d.filas.length">Sin conceptos. Pulsa "+ Concepto".</p>
+
+  <!-- ===== TOTALES ===== -->
+  <div class="tot">
+    <div>Subtotal <span x-text="m(sub)"></span></div>
+    <div>Descuento % <input type="number" min="0" max="100" x-model.number="d.desc" @focus="ini()" @change="fin()">
+         <span x-text="'-' + m(descuento)"></span></div>
+    <div>IVA % <input type="number" min="0" x-model.number="d.iva" @focus="ini()" @change="fin()">
+         <span x-text="m(iva)"></span></div>
+    <div class="f">Total <span x-text="m(total)"></span></div>
+  </div>
+</div>
+
+<p><small>Atajos: Ctrl+Z deshace, Ctrl+Y rehace. Recarga la página: tus datos siguen ahí.</small></p>
+
+<script>
+  document.addEventListener('alpine:init', () => Alpine.data('cotizador', () => ({
+
+    // ---------- ESTADO ----------
+    // Todo lo editable vive en "d", así una sola foto guarda TODO (filas, descuento e IVA)
+    d: { desc: 0, iva: 16, filas: [
+      { id: 1, txt: 'Diseño de logotipo', cant: 1, precio: 1500 },
+      { id: 2, txt: 'Hosting anual',      cant: 2, precio: 800 }
+    ] },
+    pasado: [], futuro: [], antes: '', hora: '',
+
+    // ---------- CICLO DE VIDA ----------
+    init() {
+      try { const g = localStorage.getItem('cotizador'); if (g) this.d = JSON.parse(g) } catch (e) {}
+      // $watch: cualquier cambio en "d" (aunque sea una letra) se guarda y actualiza la hora
+      this.$watch('d', v => {
+        this.hora = new Date().toLocaleTimeString('es-MX')
+        try { localStorage.setItem('cotizador', JSON.stringify(v)) } catch (e) {}
+      })
+    },
+
+    // ---------- HISTORIAL (deshacer / rehacer) ----------
+    // ini() toma una foto antes de editar; fin() la manda a "pasado" si algo cambió.
+    ini() { this.antes = JSON.stringify(this.d) },
+    fin() { if (this.antes !== JSON.stringify(this.d)) { this.pasado.push(this.antes); this.futuro = [] } },
+    mod(fn) { this.ini(); fn(); this.fin() },   // envuelve acciones de botones (agregar, quitar)
+    deshacer() {
+      this.fin()                                // confirma una edición a medias antes de retroceder
+      if (this.pasado.length) { this.futuro.push(JSON.stringify(this.d)); this.d = JSON.parse(this.pasado.pop()) }
+      this.ini()
+    },
+    rehacer() {
+      if (this.futuro.length) { this.pasado.push(JSON.stringify(this.d)); this.d = JSON.parse(this.futuro.pop()) }
+      this.ini()
+    },
+
+    // ---------- ACCIONES ----------
+    agregar() {
+      this.mod(() => this.d.filas.push({ id: Date.now(), txt: '', cant: 1, precio: 0 }))
+      this.$nextTick(() => this.$refs.tabla.querySelector('tr:last-child input').focus())   // enfoca la fila nueva
+    },
+    quitar(id) { this.mod(() => this.d.filas = this.d.filas.filter(f => f.id !== id)) },
+
+    // ---------- TOTALES ----------
+    // Getters encadenados; se recalculan solos al editar cualquier celda
+    get sub()       { return this.d.filas.reduce((s, f) => s + f.cant * f.precio, 0) },
+    get descuento() { return this.sub * this.d.desc / 100 },
+    get iva()       { return (this.sub - this.descuento) * this.d.iva / 100 },
+    get total()     { return this.sub - this.descuento + this.iva },
+    m(n)            { return new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(n || 0) }
+  })))
+</script>
+</body>
+</html>

@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ejemplo 2 (intermedio): formulario en pasos con Alpine.js</title>
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.9/dist/cdn.min.js"></script>
+
+<!--
+=====================================================================
+ ¿QUÉ HACE ALPINE EN ESTE EJEMPLO?
+ Convierte un formulario normal en un asistente de 3 pasos SIN recargar la página:
+   1. Recuerda en qué paso estás ("paso") y muestra solo ese       -> x-show + x-transition
+   2. Dibuja el indicador de pasos a partir de un arreglo           -> x-for
+   3. Valida los campos en vivo y calcula la lista de errores       -> get errores
+   4. Impide avanzar si hay errores y muestra los mensajes          -> @submit.prevent + x-show
+   5. Guarda todos los datos en un solo objeto "d"                  -> x-model (texto, radio, checkbox)
+   6. Muestra un resumen con lo que escribiste en los pasos previos -> x-text
+   7. Anima la barra de progreso                                    -> :style
+ Alpine es el "cerebro": decide qué se ve y cuándo, según los datos.
+=====================================================================
+-->
+
+<style>
+  body{font-family:system-ui,sans-serif;max-width:520px;margin:30px auto;padding:0 16px;color:#1f2430}
+  .pasos{display:flex;justify-content:space-between;margin:16px 0 6px}
+  .pasos span{font-size:.85rem;color:#999}
+  .pasos span.activo{color:#0e7c86;font-weight:700}
+  .barra{height:8px;background:#e5e7eb;border-radius:99px;overflow:hidden}
+  .barra div{height:100%;background:#0e7c86;transition:width .4s}
+  label{display:block;margin:12px 0 4px;font-weight:600}
+  input[type=text],input[type=email]{width:100%;box-sizing:border-box;padding:9px;border:1px solid #bbb;border-radius:8px;font-size:1rem}
+  .plan{display:block;border:2px solid #ddd;border-radius:10px;padding:10px;margin:8px 0;cursor:pointer;font-weight:400}
+  .plan.elegido{border-color:#0e7c86;background:#e3f3f4}
+  .error{background:#fcebea;color:#b42318;padding:8px 12px;border-radius:8px;margin-top:12px}
+  .acciones{display:flex;justify-content:space-between;margin-top:20px}
+  button{padding:10px 18px;border:0;border-radius:8px;background:#0e7c86;color:#fff;font-weight:600;cursor:pointer}
+  button.gris{background:#9aa3b2}
+  .exito{text-align:center;padding:30px 0}
+  [x-cloak]{display:none!important}   /* x-cloak oculta el elemento hasta que Alpine termine de cargar */
+</style>
+</head>
+<body>
+
+<h1>Crea tu cuenta</h1>
+
+<!-- x-data="registro()" -> el componente. Su estado y lógica están en la función registro() al final. -->
+<div x-data="registro()">
+
+  <!-- ===== PANTALLA FINAL: solo existe cuando enviado = true ===== -->
+  <div class="exito" x-show="enviado" x-cloak x-transition>
+    <h2>¡Registro completado!</h2>
+    <p>Bienvenido/a, <strong x-text="d.nombre"></strong>. Te enviamos un correo a <strong x-text="d.correo"></strong>.</p>
+    <button type="button" @click="reiniciar()">Registrar a otra persona</button>
+  </div>
+
+  <!-- ===== FORMULARIO: se oculta al terminar ===== -->
+  <div x-show="!enviado">
+
+    <!-- Indicador de pasos.
+         x-for con índice: (nombre, i) recorre ['Tus datos','Elige un plan','Confirmar'].
+         :class marca como "activo" el paso actual y los anteriores. -->
+    <div class="pasos">
+      <template x-for="(nombre, i) in pasos" :key="i">
+        <span :class="{ activo: paso >= i + 1 }" x-text="(i + 1) + '. ' + nombre"></span>
+      </template>
+    </div>
+
+    <!-- Barra de progreso: el ancho se calcula con el getter "progreso" -->
+    <div class="barra"><div :style="{ width: progreso + '%' }"></div></div>
+
+    <!--
+      @submit.prevent ->  Intercepta el envío del formulario (también con la tecla Enter)
+                          y evita que la página se recargue (".prevent" = preventDefault).
+      La expresión decide: ¿hay más pasos? avanza; ¿es el último? envía.
+    -->
+    <form @submit.prevent="paso < pasos.length ? siguiente() : enviar()">
+
+      <!-- ===== PASO 1: datos personales ===== -->
+      <div x-show="paso === 1" x-transition>
+        <label>Nombre completo</label>
+        <!-- x-model enlaza cada input con una propiedad del objeto "d" -->
+        <input type="text" x-model="d.nombre" placeholder="Ana López">
+        <label>Correo electrónico</label>
+        <input type="email" x-model="d.correo" placeholder="ana@correo.com">
+      </div>
+
+      <!-- ===== PASO 2: elegir plan (radio buttons) ===== -->
+      <div x-show="paso === 2" x-transition>
+        <label>Elige tu plan</label>
+        <!-- x-for dibuja una tarjeta por plan. x-model con radio guarda el "value" elegido en d.plan -->
+        <template x-for="p in planes" :key="p.id">
+          <label class="plan" :class="{ elegido: d.plan === p.id }">
+            <input type="radio" name="plan" :value="p.id" x-model="d.plan">
+            <span x-text="p.nombre + ' — ' + (p.precio === 0 ? 'Gratis' : '$' + p.precio + ' MXN/mes')"></span>
+          </label>
+        </template>
+      </div>
+
+      <!-- ===== PASO 3: resumen y confirmación ===== -->
+      <div x-show="paso === 3" x-transition>
+        <label>Revisa tus datos</label>
+        <!-- Alpine lee lo capturado en los pasos 1 y 2 y lo muestra al instante -->
+        <p>Nombre: <strong x-text="d.nombre"></strong></p>
+        <p>Correo: <strong x-text="d.correo"></strong></p>
+        <!-- "?." evita error si todavía no hay plan elegido -->
+        <p>Plan: <strong x-text="planElegido?.nombre"></strong></p>
+        <!-- x-model con checkbox guarda true/false -->
+        <label style="font-weight:400"><input type="checkbox" x-model="d.acepta"> Acepto los términos y condiciones</label>
+      </div>
+
+      <!--
+        Mensajes de error: solo se muestran si el usuario YA intentó avanzar ("intento")
+        y existen errores. x-for recorre la lista calculada por el getter "errores".
+      -->
+      <div class="error" x-show="intento && errores.length > 0" x-transition>
+        <template x-for="e in errores" :key="e"><div x-text="'• ' + e"></div></template>
+      </div>
+
+      <div class="acciones">
+        <!-- El botón "Atrás" no existe en el paso 1 -->
+        <button type="button" class="gris" x-show="paso > 1" @click="anterior()">Atrás</button>
+        <span x-show="paso === 1"></span>
+        <!-- El texto del botón cambia en el último paso -->
+        <button type="submit" x-text="paso < pasos.length ? 'Siguiente' : 'Crear cuenta'"></button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  function registro() {
+    return {
+      // ---------- ESTADO ----------
+      paso: 1,                                        // paso actual (1, 2 o 3)
+      pasos: ['Tus datos', 'Elige un plan', 'Confirmar'],
+      intento: false,                                 // ¿ya intentó avanzar con errores?
+      enviado: false,                                 // ¿terminó el registro?
+      d: { nombre: '', correo: '', plan: '', acepta: false },   // todos los datos del formulario
+      planes: [
+        { id: 'basico', nombre: 'Básico', precio: 0 },
+        { id: 'pro',    nombre: 'Pro',    precio: 199 },
+        { id: 'equipo', nombre: 'Equipo', precio: 499 }
+      ],
+
+      // ---------- PROPIEDADES CALCULADAS ----------
+      // Devuelve la lista de errores del paso ACTUAL. Se recalcula sola al teclear o cambiar de paso.
+      get errores() {
+        const e = []
+        if (this.paso === 1) {
+          if (this.d.nombre.trim().length < 3) e.push('El nombre debe tener al menos 3 letras.')
+          if (!/^\S+@\S+\.\S+$/.test(this.d.correo)) e.push('Escribe un correo válido.')
+        }
+        if (this.paso === 2 && !this.d.plan) e.push('Debes elegir un plan.')
+        if (this.paso === 3 && !this.d.acepta) e.push('Debes aceptar los términos.')
+        return e
+      },
+      get progreso()     { return Math.round(this.paso / this.pasos.length * 100) },   // 33, 67 o 100 %
+      get planElegido()  { return this.planes.find(p => p.id === this.d.plan) },
+
+      // ---------- MÉTODOS ----------
+      siguiente() {
+        if (this.errores.length) { this.intento = true; return }   // hay errores: no avanza
+        this.intento = false
+        this.paso++
+      },
+      anterior() { this.intento = false; this.paso-- },
+      enviar() {
+        if (this.errores.length) { this.intento = true; return }
+        this.enviado = true          // Alpine oculta el formulario y muestra la pantalla final
+      },
+      reiniciar() {
+        this.d = { nombre: '', correo: '', plan: '', acepta: false }
+        this.paso = 1
+        this.intento = false
+        this.enviado = false
+      }
+    }
+  }
+</script>
+</body>
+</html>
