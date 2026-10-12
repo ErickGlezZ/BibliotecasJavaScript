@@ -1,0 +1,209 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+
+  min-height: 100vh;
+
+  background-color: #0a0e17;
+  color: #e6edf3;
+
+  font-family: system-ui, sans-serif;
+}
+
+.contenedor {
+  width: min(900px, 92%);
+
+  margin: 0 auto;
+
+  padding: 3rem 0;
+}
+
+header {
+  margin-bottom: 2rem;
+}
+
+h1 {
+  font-size: 2.5rem;
+
+  margin-bottom: .5rem;
+}
+
+.descripcion {
+  color: #8b949e;
+
+  line-height: 1.6;
+}
+
+.formulario {
+  background-color: #111827;
+
+  border: 1px solid #30363d;
+
+  border-radius: 16px;
+
+  padding: 2rem;
+}
+
+.campo {
+  margin-bottom: 1.4rem;
+}
+
+label {
+  display: block;
+
+  margin-bottom: .5rem;
+
+  font-weight: 600;
+}
+
+input,
+select {
+  width: 100%;
+
+  padding: .85rem;
+
+  background-color: #0d1117;
+
+  color: #e6edf3;
+
+  border: 1px solid #30363d;
+
+  border-radius: 8px;
+
+  outline: none;
+
+  font-size: 1rem;
+}
+
+input:focus,
+select:focus {
+  border-color: #58a6ff;
+}
+
+button {
+  width: 100%;
+
+  padding: .9rem;
+
+  border: none;
+
+  border-radius: 8px;
+
+  background-color: #238636;
+
+  color: white;
+
+  font-size: 1rem;
+
+  cursor: pointer;
+
+  transition: .2s;
+}
+
+button:hover {
+  background-color: #2ea043;
+}
+
+button:disabled {
+  background-color: #30363d;
+
+  color: #8b949e;
+
+  cursor: not-allowed;
+}
+
+.volver {
+  display: inline-block;
+
+  margin-top: 1.5rem;
+
+  color: #58a6ff;
+
+  text-decoration: none;
+}
+
+/* =====================================================
+   ESTILOS UTILIZADOS POR LIVEVALIDATION
+   ===================================================== */
+
+.LV_validation_message {
+  display: block;
+
+  margin-top: .4rem;
+
+  font-size: .85rem;
+}
+
+.LV_invalid {
+  color: #f85149;
+}
+
+.LV_valid {
+  color: #3fb950;
+}
+
+.LV_invalid_field {
+  border-color: #f85149 !important;
+}
+
+.LV_valid_field {
+  border-color: #3fb950 !important;
+}
+
+
+/* =====================================================
+   SECCIONES DEL FORMULARIO AVANZADO
+   ===================================================== */
+
+.seccion {
+  border: 1px solid #30363d;
+
+  border-radius: 12px;
+
+  padding: 1.5rem;
+
+  margin-bottom: 1.5rem;
+}
+
+.seccion h2 {
+  margin-top: 0;
+
+  font-size: 1.2rem;
+}
+
+.requisitos {
+  margin-top: .7rem;
+
+  padding: .8rem;
+
+  background-color: #0d1117;
+
+  border-radius: 8px;
+
+  font-size: .9rem;
+
+  line-height: 1.8;
+}
+
+.correcto {
+  color: #3fb950;
+}
+
+.incorrecto {
+  color: #f85149;
+}
+
+.estado {
+  margin-top: 1.5rem;
+
+  padding: 1.2rem;
+
+  border: 1px solid #30363d;
+
+  border-radius: 10px;
+
+  background-color: #0d1117;
+}
