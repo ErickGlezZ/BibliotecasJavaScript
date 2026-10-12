@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ejercicio 1 · Popper.js básico</title>
+<style>
+  /* ============================================================
+     PASO 2: CSS del tooltip
+     Popper SOLO calcula posiciones (con transform). El aspecto
+     (colores, bordes, sombras) es 100% responsabilidad tuya.
+     ============================================================ */
+  body{font-family:system-ui,sans-serif;background:#f4f5fb;display:grid;place-items:center;min-height:100vh;margin:0;color:#1d2033}
+  .caja{background:#fff;padding:40px;border-radius:18px;box-shadow:0 10px 30px rgba(40,40,100,.1);text-align:center;max-width:520px}
+  h1{margin:0 0 6px;font-size:24px}
+  p{color:#6a6f87;margin:0 0 28px}
+  .botones{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+  button{background:linear-gradient(135deg,#5b5bf0,#8b5cf6);color:#fff;border:0;padding:10px 18px;border-radius:10px;font:600 15px system-ui;cursor:pointer}
+
+  .tooltip{
+    background:#1d2033; color:#fff;
+    padding:7px 12px; border-radius:8px; font-size:13px;
+    display:none;               /* oculto por defecto */
+    z-index:10;
+  }
+  /* Lo mostramos añadiendo el atributo data-show desde JS */
+  .tooltip[data-show]{display:block}
+
+  /* La flecha: un cuadrado rotado 45°. Popper la mueve por nosotros,
+     pero tú decides de qué lado pegarla según data-popper-placement. */
+  .flecha, .flecha::before{position:absolute;width:10px;height:10px;background:inherit}
+  .flecha{visibility:hidden}
+  .flecha::before{visibility:visible;content:"";transform:rotate(45deg)}
+  .tooltip[data-popper-placement^="top"]    > .flecha{bottom:-5px}
+  .tooltip[data-popper-placement^="bottom"] > .flecha{top:-5px}
+  .tooltip[data-popper-placement^="left"]   > .flecha{right:-5px}
+  .tooltip[data-popper-placement^="right"]  > .flecha{left:-5px}
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     PASO 1: HTML
+     Necesitas dos elementos por cada tooltip:
+       - la REFERENCIA (el botón sobre el que se pasa el mouse)
+       - el POPPER (el tooltip que se posiciona)
+     Aquí los relacionamos con id="boton-X" / id="tip-X".
+     ============================================================ -->
+<div class="caja">
+  <h1>Tu primer tooltip con Popper.js</h1>
+  <p>Pasa el mouse (o usa Tab) sobre cada botón. Cada tooltip aparece en una posición distinta.</p>
+
+  <div class="botones">
+    <button id="boton-top">Arriba</button>
+    <button id="boton-right">Derecha</button>
+    <button id="boton-bottom">Abajo</button>
+    <button id="boton-left">Izquierda</button>
+  </div>
+</div>
+
+<!-- El atributo data-popper-arrow marca el elemento que Popper usará como flecha -->
+<div class="tooltip" id="tip-top">Estoy arriba<div class="flecha" data-popper-arrow></div></div>
+<div class="tooltip" id="tip-right">Estoy a la derecha<div class="flecha" data-popper-arrow></div></div>
+<div class="tooltip" id="tip-bottom">Estoy abajo<div class="flecha" data-popper-arrow></div></div>
+<div class="tooltip" id="tip-left">Estoy a la izquierda<div class="flecha" data-popper-arrow></div></div>
+
+<!-- Cargamos Popper desde CDN. Expone el objeto global "Popper". -->
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
+<script>
+  /* ============================================================
+     PASO 3: JavaScript
+     ============================================================ */
+
+  // Función reutilizable: conecta un botón con su tooltip.
+  function crearTooltip(idBoton, idTooltip, posicion) {
+    const boton = document.getElementById(idBoton);
+    const tooltip = document.getElementById(idTooltip);
+
+    // createPopper(referencia, popper, opciones) -> devuelve una instancia.
+    // Desde este momento Popper mantiene el tooltip pegado al botón.
+    const instancia = Popper.createPopper(boton, tooltip, {
+      placement: posicion,            // 'top' | 'right' | 'bottom' | 'left'
+      modifiers: [
+        // "offset" separa el tooltip del botón: [desplazamiento lateral, distancia]
+        { name: 'offset', options: { offset: [0, 10] } }
+      ]
+    });
+
+    function mostrar() {
+      tooltip.setAttribute('data-show', '');  // activa display:block (ver CSS)
+      instancia.update();                     // recalcula la posición ahora que es visible
+    }
+    function ocultar() {
+      tooltip.removeAttribute('data-show');
+    }
+
+    // Eventos de mouse Y de teclado (accesibilidad: focus/blur con Tab)
+    boton.addEventListener('mouseenter', mostrar);
+    boton.addEventListener('mouseleave', ocultar);
+    boton.addEventListener('focus', mostrar);
+    boton.addEventListener('blur', ocultar);
+  }
+
+  // Un tooltip por cada botón:
+  crearTooltip('boton-top',    'tip-top',    'top');
+  crearTooltip('boton-right',  'tip-right',  'right');
+  crearTooltip('boton-bottom', 'tip-bottom', 'bottom');
+  crearTooltip('boton-left',   'tip-left',   'left');
+
+  /* Prueba por tu cuenta:
+     1. Cambia 'top' por 'top-start' o 'bottom-end' y mira cómo se alinea.
+     2. Cambia el offset [0, 10] por [0, 30].
+     3. Haz la ventana muy pequeña y observa que Popper cambia solo de lado
+        si el tooltip no cabe (modifier "flip", activo por defecto). 
+     4. Elimina 'class="flecha" data-popper-arrow' para eliminar la flecha
+        del popper que se muestra.*/
+</script>
+</body>
+</html>

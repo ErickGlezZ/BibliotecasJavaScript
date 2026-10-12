@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ejercicio 2 · Personalización con Popper.js</title>
+<style>
+  body{font-family:system-ui,sans-serif;background:#f4f5fb;margin:0;padding:24px;color:#1d2033}
+  .contenedor{max-width:760px;margin:auto;display:grid;gap:18px}
+  h1{margin:0;font-size:24px}
+  .panel{background:#fff;border-radius:16px;padding:20px;box-shadow:0 10px 30px rgba(40,40,100,.08)}
+  .controles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+  label{font-size:12px;font-weight:600;color:#6a6f87;display:flex;flex-direction:column;gap:5px}
+  select,input[type=range]{font:inherit;font-size:14px;padding:6px;border:1px solid #e3e5f0;border-radius:8px;width:100%}
+  .escenario{min-height:230px;display:grid;place-items:center;border:2px dashed #e3e5f0;border-radius:14px}
+  button#objetivo{background:linear-gradient(135deg,#5b5bf0,#8b5cf6);color:#fff;border:0;padding:12px 22px;border-radius:10px;font:600 15px system-ui;cursor:pointer}
+  pre{background:#16182a;color:#cfd3f5;padding:14px;border-radius:12px;font-size:12.5px;overflow-x:auto;margin:0;line-height:1.5}
+
+  /* ---------- Base del tooltip ---------- */
+  .tooltip{padding:9px 14px;border-radius:10px;font-size:14px;z-index:10;max-width:220px}
+  .flecha, .flecha::before{position:absolute;width:10px;height:10px;background:inherit}
+  .flecha{visibility:hidden}
+  .flecha::before{visibility:visible;content:"";transform:rotate(45deg)}
+  .tooltip[data-popper-placement^="top"]    > .flecha{bottom:-5px}
+  .tooltip[data-popper-placement^="bottom"] > .flecha{top:-5px}
+  .tooltip[data-popper-placement^="left"]   > .flecha{right:-5px}
+  .tooltip[data-popper-placement^="right"]  > .flecha{left:-5px}
+
+  /* ---------- Variantes visuales ----------
+     Personalizar el look = cambiar una clase CSS. Popper no interviene. */
+  .tema-oscuro  {background:#1d2033;color:#fff}
+  .tema-degradado{background:linear-gradient(135deg,#5b5bf0,#ec4899);color:#fff;box-shadow:0 8px 24px rgba(91,91,240,.45)}
+  .tema-claro   {background:#fff;color:#1d2033;border:1px solid #dcdff0;box-shadow:0 10px 30px rgba(0,0,0,.15)}
+  .tema-claro .flecha::before{background:#fff;border:1px solid #dcdff0}
+  .tema-exito   {background:#12b76a;color:#fff}
+  .sin-flecha > .flecha{display:none}
+</style>
+</head>
+<body>
+<div class="contenedor">
+  <h1>Laboratorio de personalización</h1>
+
+  <div class="panel controles">
+    <label>placement
+      <select id="c-posicion">
+        <option>top</option><option>top-start</option><option>top-end</option>
+        <option>bottom</option><option>bottom-start</option><option>bottom-end</option>
+        <option>left</option><option>right</option>
+      </select></label>
+    <label>Estilo (CSS)
+      <select id="c-tema">
+        <option value="tema-oscuro">Oscuro</option><option value="tema-degradado">Degradado</option>
+        <option value="tema-claro">Claro</option><option value="tema-exito">Éxito</option>
+      </select></label>
+    <label>offset · distancia: <span id="v-dist">12</span>px
+      <input type="range" id="c-dist" min="0" max="60" value="12"></label>
+    <label>offset · desplazamiento: <span id="v-skid">0</span>px
+      <input type="range" id="c-skid" min="-60" max="60" value="0"></label>
+    <label>flip
+      <select id="c-flip"><option value="1">Activado</option><option value="0">Desactivado</option></select></label>
+    <label>Flecha
+      <select id="c-flecha"><option value="1">Con flecha</option><option value="0">Sin flecha</option></select></label>
+  </div>
+
+  <div class="panel escenario">
+    <button id="objetivo">Objetivo (arrástrame con las opciones)</button>
+  </div>
+
+  <!-- Aquí mostramos en vivo el código que se está ejecutando -->
+  <pre id="codigo"></pre>
+</div>
+
+<!-- Tooltip siempre visible para poder ver los efectos de cada opción -->
+<div class="tooltip tema-oscuro" id="tooltip">¡Personalízame! ✨<div class="flecha" data-popper-arrow></div></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
+<script>
+  const objetivo = document.getElementById('objetivo');
+  const tooltip  = document.getElementById('tooltip');
+  const $ = id => document.getElementById(id);
+
+  // 1) Creamos la instancia UNA sola vez, con valores iniciales.
+  const instancia = Popper.createPopper(objetivo, tooltip, { placement: 'top' });
+
+  // 2) Cada vez que se mueve un control, reconstruimos las opciones
+  //    y se las damos a la MISMA instancia con setOptions().
+  function aplicar() {
+    const posicion = $('c-posicion').value;
+    const dist = +$('c-dist').value;     // distancia al objetivo
+    const skid = +$('c-skid').value;     // desplazamiento lateral
+    const flipActivo = $('c-flip').value === '1';
+    const conFlecha  = $('c-flecha').value === '1';
+
+    // Mostrar valores junto a los sliders
+    $('v-dist').textContent = dist;
+    $('v-skid').textContent = skid;
+
+    // El estilo visual es solo CSS: cambiamos las clases del tooltip
+    tooltip.className = 'tooltip ' + $('c-tema').value + (conFlecha ? '' : ' sin-flecha');
+
+    // Los "modifiers" son pequeños plugins que ajustan la posición.
+    // Los más usados:
+    const modifiers = [
+      // offset: [skidding, distance] mueve el tooltip respecto a su posición base
+      { name: 'offset', options: { offset: [skid, dist] } },
+      // flip: si no cabe en 'placement', prueba el lado contrario
+      //       (redimensiona la ventana para verlo)
+      { name: 'flip', enabled: flipActivo },
+      // arrow: evita que la flecha se salga de las esquinas redondeadas
+      { name: 'arrow', options: { padding: 8 } },
+      // preventOverflow: mantiene el tooltip dentro del viewport
+      { name: 'preventOverflow', options: { padding: 8 } }
+    ];
+
+    // setOptions acepta una función que recibe las opciones actuales
+    instancia.setOptions(actuales => ({ ...actuales, placement: posicion, modifiers }));
+
+    // Mostramos el código equivalente (para aprender qué se configuró)
+    $('codigo').textContent =
+`createPopper(objetivo, tooltip, {
+  placement: '${posicion}',
+  modifiers: [
+    { name: 'offset', options: { offset: [${skid}, ${dist}] } },
+    { name: 'flip', enabled: ${flipActivo} },
+    { name: 'arrow', options: { padding: 8 } },
+    { name: 'preventOverflow', options: { padding: 8 } }
+  ]
+});`;
+  }
+
+  // 3) Escuchamos todos los controles con el mismo manejador
+  ['c-posicion','c-tema','c-dist','c-skid','c-flip','c-flecha']
+    .forEach(id => $(id).addEventListener('input', aplicar));
+  aplicar();
+
+  /* PRUEBA ESTO:
+     - Pon placement 'top', acerca el botón al borde superior (haz la ventana corta)
+       con flip activado y luego desactivado: verás la diferencia.
+     - Mueve "desplazamiento" y nota que la flecha se mantiene apuntando al botón. */
+</script>
+</body>
+</html>
